@@ -577,27 +577,6 @@ wheels = [
 ]
 
 [[package]]
-name = "de-ae"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "databricks-sdk" },
-    { name = "dbt-core" },
-    { name = "dbt-databricks" },
-    { name = "fastapi" },
-    { name = "requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "databricks-sdk", specifier = ">=0.117.0" },
-    { name = "dbt-core", specifier = ">=1.12.0" },
-    { name = "dbt-databricks", specifier = ">=1.12.4" },
-    { name = "fastapi", specifier = ">=0.141.1" },
-    { name = "requests", specifier = ">=2.34.2" },
-]
-
-[[package]]
 name = "deepdiff"
 version = "8.6.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1691,6 +1670,27 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/32/77/0ecb68cf0ea0af2c51ba88cf7f85ce59823efc7a7cb7573abaac0d60d49b/thrift-0.24.0-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:c05bb4eac921836c12cdf30c237283df8a42aff6540f7970cd72c5959b139970", size = 1478854, upload-time = "2026-07-11T16:53:46.654Z" },
     { url = "https://files.pythonhosted.org/packages/fa/89/fd2a0b7ef3a54bac545fdaf9e34b3d3012471058a9eddbe5a2697bf69773/thrift-0.24.0-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:e5da6b391828d46df9471f22181374760a91773b7e07ad7eb44f351c90580662", size = 1539741, upload-time = "2026-07-11T16:53:48.012Z" },
     { url = "https://files.pythonhosted.org/packages/a5/10/7b3368202c2333d448fa9b13288ecb8f68e9361531c8757a7b1eb27ab750/thrift-0.24.0-cp314-cp314-win_amd64.whl", hash = "sha256:829db909a053d4064cb9fe574cc1f5994c24d727f61cdf6446ca774cd3ba5268", size = 419738, upload-time = "2026-07-11T16:53:49.773Z" },
+]
+
+[[package]]
+name = "trusted-delivery-analytics"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "databricks-sdk" },
+    { name = "dbt-core" },
+    { name = "dbt-databricks" },
+    { name = "fastapi" },
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "databricks-sdk", specifier = ">=0.117.0" },
+    { name = "dbt-core", specifier = ">=1.12.0" },
+    { name = "dbt-databricks", specifier = ">=1.12.4" },
+    { name = "fastapi", specifier = ">=0.141.1" },
+    { name = "requests", specifier = ">=2.34.2" },
 ]
 
 [[package]]

@@ -12,9 +12,10 @@ dbt/dbt_packages/
 dbt/logs/
 logs/
 
-# Dữ liệu thô — tải bằng scripts/download_data.sh
+# Raw data — fetch with scripts/download_data.sh
 data/raw/*
 !data/raw/.gitkeep
+!data/README.md
 
 # Airflow (Phase 10)
 airflow/logs/

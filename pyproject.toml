@@ -1,7 +1,7 @@
 [project]
-name = "de-ae"
+name = "trusted-delivery-analytics"
 version = "0.1.0"
-description = "Add your description here"
+description = "Freight analytics warehouse with a metadata-driven data quality layer"
 readme = "README.md"
 authors = [
     { name = "Larry", email = "huutoan.work.47586@gmail.com" }
@@ -15,9 +15,7 @@ dependencies = [
     "requests>=2.34.2",
 ]
 
-[project.scripts]
-de-ae = "de_ae:main"
-
-[build-system]
-requires = ["uv_build>=0.12.5,<0.13.0"]
-build-backend = "uv_build"
+[tool.uv]
+# This repository is an application, not a distributable package.
+# Without this, uv tries to build a module at src/ and fails.
+package = false

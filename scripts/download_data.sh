@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -euo pipefail
 
 DEST="${DEST_OVERRIDE:-$(cd "$(dirname "$0")/.." && pwd)/data/raw}"
