@@ -1,0 +1,23 @@
+# Secrets
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# dbt
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+logs/
+
+# Dữ liệu thô — tải bằng scripts/download_data.sh
+data/raw/*
+!data/raw/.gitkeep
+
+# Airflow (Phase 10)
+airflow/logs/
+
+# macOS
+.DS_Store
