@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: stg_freight__customers
+    columns:
+      - name: customer_id
+        data_tests: [not_null, unique]
+  - name: stg_freight__trucks
+    columns:
+      - name: truck_id
+        data_tests: [not_null, unique]
+  - name: stg_freight__trailers
+    columns:
+      - name: trailer_id
+        data_tests: [not_null, unique]
+  - name: stg_freight__facilities
+    columns:
+      - name: facility_id
+        data_tests: [not_null, unique]
+  - name: stg_freight__routes
+    columns:
+      - name: route_id
+        data_tests: [not_null, unique]
+  - name: stg_freight__drivers
+    columns:
+      - name: driver_id
+        data_tests: [not_null, unique]
+  - name: stg_freight__loads
+    columns:
+      - name: load_id
+        data_tests: [not_null, unique]
+  - name: stg_freight__trips
+    columns:
+      - name: trip_id
+        data_tests: [not_null, unique]
+  - name: stg_freight__fuel_purchases
+    columns:
+      - name: fuel_purchase_id
+        data_tests: [not_null, unique]
+  - name: stg_freight__maintenance_records
+    columns:
+      - name: maintenance_id
+        data_tests: [not_null, unique]
+  - name: stg_freight__delivery_events
+    columns:
+      - name: event_id
+        data_tests: [not_null, unique]
+  - name: stg_freight__safety_incidents
+    columns:
+      - name: incident_id
+        data_tests: [not_null, unique]
+  - name: stg_freight__driver_monthly_metrics
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [driver_id, month]
+  - name: stg_freight__truck_utilization_metrics
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [truck_id, month]

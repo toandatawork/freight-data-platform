@@ -1,0 +1,10 @@
+packages:
+  # dbt_utils: Core utility macros (surrogate key generation, pivot/unpivot, date spines, advanced tests)
+  - package: dbt-labs/dbt_utils
+    version: [">=1.3.0", "<2.0.0"]
+    # codegen: Automates scaffolding for sources.yml and staging SQL models directly from database schemas
+  - package: dbt-labs/codegen
+    version: [">=0.13.0", "<0.14.0"]
+    # dbt_expectations: Advanced data quality testing (regex patterns, numeric ranges, Great Expectations assertions)
+  - package: calogica/dbt_expectations
+    version: [">=0.10.0", "<0.11.0"]

@@ -34,3 +34,12 @@ models:
       relation: true
       # Push column descriptions as database column comments
       columns: true
+    staging:
+      +schema: staging
+      +materialized: view
+    observability:
+      +schema: observability
+    intermediate:
+      +schema: intermediate
+    marts:
+      +schema: marts

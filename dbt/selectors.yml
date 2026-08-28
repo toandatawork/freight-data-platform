@@ -1,0 +1,21 @@
+selectors:
+  - name: profiling
+    description: Models in the data profiling layer
+    definition:
+      method: tag
+      value: profiling
+  - name: dq
+    description: Models for the metadata-driven Data Quality rule engine and scorecard
+    definition:
+      method: tag
+      value: dq
+  - name: marts
+    description: All models in the marts layer (star schema facts and dimensions)
+    definition:
+      method: path
+      value: models/marts
+  - name: ci_slim
+    description: Slim CI selector — modified models and their downstream dependencies
+    definition:
+      method: fqn
+      value: "state:modified+"
