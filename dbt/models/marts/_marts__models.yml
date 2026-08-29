@@ -37,3 +37,13 @@ models:
         data_type: double
       - name: margin
         data_type: double
+
+  # customer_key tách sang model fct_load ở đây
+  - name: fct_load
+    columns:
+      - name: customer_key
+        data_tests:
+          - not_orphaned:
+              to: ref('dim_customer')
+              field: customer_key
+              threshold_pct: 0

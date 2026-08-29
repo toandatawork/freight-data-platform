@@ -1,0 +1,46 @@
+unit_tests:
+  - name: test_recompute_on_time_logic
+    model: int_delivery_events_cleaned
+    given:
+      - input: ref('stg_freight__delivery_events')
+        rows:
+          - {
+              event_id: E1,
+              load_id: L1,
+              trip_id: T1,
+              event_type: Pickup,
+              facility_id: F1,
+              scheduled_datetime: "2024-01-01 10:00:00",
+              actual_datetime: "2024-01-01 09:00:00",
+              detention_minutes: 0,
+              on_time_flag: false,
+              location_city: Dallas,
+              location_state: TX,
+            }
+          - {
+              event_id: E2,
+              load_id: L2,
+              trip_id: T2,
+              event_type: Delivery,
+              facility_id: F2,
+              scheduled_datetime: "2024-01-01 10:00:00",
+              actual_datetime: "2024-01-01 11:00:00",
+              detention_minutes: 0,
+              on_time_flag: true,
+              location_city: Reno,
+              location_state: NV,
+            }
+    expect:
+      rows:
+        - {
+            event_id: E1,
+            on_time_flag_raw: false,
+            is_on_time_computed: true,
+            flag_mismatch: true,
+          }
+        - {
+            event_id: E2,
+            on_time_flag_raw: true,
+            is_on_time_computed: false,
+            flag_mismatch: true,
+          }
