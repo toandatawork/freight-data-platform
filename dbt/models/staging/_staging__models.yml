@@ -52,8 +52,10 @@ models:
   - name: stg_freight__driver_monthly_metrics
     data_tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [driver_id, month]
+          arguments:
+            combination_of_columns: [driver_id, month]
   - name: stg_freight__truck_utilization_metrics
     data_tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [truck_id, month]
+          arguments:
+            combination_of_columns: [truck_id, month]

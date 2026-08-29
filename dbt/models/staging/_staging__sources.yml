@@ -6,54 +6,69 @@ sources:
     schema: bronze
     tables:
       - name: customers
-        loaded_at_field: _ingested_at
+        config:
+          loaded_at_field: _ingested_at
       - name: trucks
-        loaded_at_field: _ingested_at
+        config:
+          loaded_at_field: _ingested_at
       - name: trailers
-        loaded_at_field: _ingested_at
+        config:
+          loaded_at_field: _ingested_at
       - name: facilities
-        loaded_at_field: _ingested_at
+        config:
+          loaded_at_field: _ingested_at
       - name: routes
-        loaded_at_field: _ingested_at
+        config:
+          loaded_at_field: _ingested_at
       - name: drivers
-        loaded_at_field: _ingested_at
+        config:
+          loaded_at_field: _ingested_at
       - name: loads
-        loaded_at_field: _ingested_at
-        freshness:
-          warn_after: { count: 12, period: hour }
-          error_after: { count: 24, period: hour }
+        config:
+          loaded_at_field: _ingested_at
+          freshness:
+            warn_after: { count: 12, period: hour }
+            error_after: { count: 24, period: hour }
       - name: trips
-        loaded_at_field: _ingested_at
-        freshness:
-          warn_after: { count: 12, period: hour }
-          error_after: { count: 24, period: hour }
+        config:
+          loaded_at_field: _ingested_at
+          freshness:
+            warn_after: { count: 12, period: hour }
+            error_after: { count: 24, period: hour }
       - name: delivery_events
-        loaded_at_field: _ingested_at
-        freshness:
-          warn_after: { count: 12, period: hour }
-          error_after: { count: 24, period: hour }
+        config:
+          loaded_at_field: _ingested_at
+          freshness:
+            warn_after: { count: 12, period: hour }
+            error_after: { count: 24, period: hour }
       - name: fuel_purchases
-        loaded_at_field: _ingested_at
-        freshness:
-          warn_after: { count: 12, period: hour }
-          error_after: { count: 24, period: hour }
+        config:
+          loaded_at_field: _ingested_at
+          freshness:
+            warn_after: { count: 12, period: hour }
+            error_after: { count: 24, period: hour }
       - name: maintenance_records
-        loaded_at_field: _ingested_at
-        freshness:
-          warn_after: { count: 12, period: hour }
-          error_after: { count: 24, period: hour }
+        config:
+          loaded_at_field: _ingested_at
+          freshness:
+            warn_after: { count: 12, period: hour }
+            error_after: { count: 24, period: hour }
       - name: safety_incidents
-        loaded_at_field: _ingested_at
-        freshness:
-          warn_after: { count: 12, period: hour }
-          error_after: { count: 24, period: hour }
+        config:
+          loaded_at_field: _ingested_at
+          freshness:
+            warn_after: { count: 12, period: hour }
+            error_after: { count: 24, period: hour }
       - name: driver_monthly_metrics
-        loaded_at_field: _ingested_at
-        freshness:
-          warn_after: { count: 12, period: hour }
-          error_after: { count: 24, period: hour }
+        config:
+          loaded_at_field: _ingested_at
+          freshness:
+            warn_after: { count: 12, period: hour }
+            error_after: { count: 24, period: hour }
       - name: truck_utilization_metrics
-        loaded_at_field: _ingested_at
-        freshness:
-          warn_after: { count: 12, period: hour }
-          error_after: { count: 24, period: hour }
+        config:
+          loaded_at_field: _ingested_at
+          freshness:
+            warn_after: { count: 12, period: hour }
+            error_after: { count: 24, period: hour }
+

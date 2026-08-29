@@ -1,0 +1,6 @@
+rule_id,model_name,column_name,rule_type,rule_expression,threshold_pct,severity,owner,description
+DQ001,stg_freight__loads,load_id,not_null,,0,error,data-team,Primary key must not be null
+DQ002,stg_freight__trips,driver_id,not_orphaned,stg_freight__drivers.driver_id,2,warn,data-team,Trip references a driver_id not present in drivers
+DQ003,stg_freight__trips,truck_id,not_orphaned,stg_freight__trucks.truck_id,2,warn,data-team,Trip references a truck_id not present in trucks
+DQ004,stg_freight__fuel_purchases,gallons,in_range,0:300,0.1,warn,finance,Fuel volume outside plausible range
+DQ005,stg_freight__delivery_events,detention_minutes,in_range,0:1440,0.1,ops,Detention time exceeds 24 hours

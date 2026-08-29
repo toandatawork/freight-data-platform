@@ -1,0 +1,8 @@
+version: 2
+
+seeds:
+  - name: dq_rules
+    config:
+      column_types:
+        threshold_pct: float
+      quote_columns: false

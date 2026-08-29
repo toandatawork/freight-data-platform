@@ -43,3 +43,11 @@ models:
       +schema: intermediate
     marts:
       +schema: marts
+seeds:
+  freight:
+    +schema: observability
+
+on-run-end:
+  - |
+    -- depends_on: {{ ref('dq_rule_results') }}
+    {{ dq_severity_gate() }}

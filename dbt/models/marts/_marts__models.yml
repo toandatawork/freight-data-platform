@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: fct_shipment_lifecycle
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: load_id
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: primary_key
+      - name: booked_at
+        data_type: timestamp
+      - name: dispatched_at
+        data_type: timestamp
+      - name: picked_up_at
+        data_type: timestamp
+      - name: delivered_at
+        data_type: timestamp
+      - name: hrs_book_to_dispatch
+        data_type: double
+      - name: hrs_dispatch_to_pickup
+        data_type: double
+      - name: hrs_pickup_to_delivery
+        data_type: double
+      - name: total_lead_time_hrs
+        data_type: double
+      - name: is_late_pickup
+        data_type: boolean
+      - name: is_late_delivery
+        data_type: boolean
+      - name: revenue
+        data_type: double
+      - name: fuel_cost
+        data_type: double
+      - name: margin
+        data_type: double
