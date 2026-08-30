@@ -1,0 +1,4 @@
+groups:
+  - name: core
+    owner:
+      name: core

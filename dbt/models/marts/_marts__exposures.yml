@@ -1,0 +1,18 @@
+version: 2
+
+exposures:
+  - name: freight_sla_dashboard
+    type: dashboard
+    maturity: high
+    url: "{{ var('sla_dashboard_url', 'https://replace-with-real-url') }}"
+    description: >
+      SLA dashboard used by the operations team — on-time rate by route/customer/driver,
+      cost-per-mile, data quality scorecard.
+    depends_on:
+      - ref('fct_shipment_lifecycle')
+      - ref('fct_load')
+      - ref('dim_customer')
+      - ref('dim_route')
+    owner:
+      name: Huu Toan
+      email: toandata.work@gmail.com

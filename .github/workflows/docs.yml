@@ -1,0 +1,23 @@
+name: Deploy dbt docs
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync
+      - run: cd dbt && uv run dbt deps
+      - run: cd dbt && uv run dbt docs generate --profiles-dir .
+        env:
+          DBX_HOST: ${{ secrets.DBX_HOST }}
+          DBX_HTTP_PATH: ${{ secrets.DBX_HTTP_PATH }}
+          DBX_TOKEN: ${{ secrets.DBX_TOKEN }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dbt/target
+      - uses: actions/deploy-pages@v4

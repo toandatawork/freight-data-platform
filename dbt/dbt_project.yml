@@ -41,8 +41,15 @@ models:
       +schema: observability
     intermediate:
       +schema: intermediate
+      +group: core
+      +access: protected
     marts:
       +schema: marts
+      +group: core
+      +access: public
+      +grants:
+        select: ["bi_reader"]
+
 seeds:
   freight:
     +schema: observability
@@ -51,3 +58,4 @@ on-run-end:
   - |
     -- depends_on: {{ ref('dq_rule_results') }}
     {{ dq_severity_gate() }}
+    {{ log_run_results(results) }}
