@@ -10,33 +10,17 @@ The platform implements an end-to-end data pipeline processing **85,410 shipment
 
 A frequent pitfall in data engineering projects is blurring the line between **Data Processing Stages (Medallion Layers)** and **Infrastructure Environments (Catalogs)**. In this platform, these two dimensions are strictly decoupled.
 
-```
-+-------------------------------------------------------------------------------------------------------+
-|                                    ENVIRONMENT ISOLATION (CATALOGS)                                   |
-|                                                                                                       |
-|  [ freight_dev ]                     [ freight_ci ]                      [ freight_prod ]             |
-|  Local development & feature testing Ephemeral PR checks (GitHub Actions) Automated Airflow execution|
-|                                                                          Only source read by BI       |
-+-------------------------------------------------------------------------------------------------------+
-                                                   |
-                                                   v
-+-------------------------------------------------------------------------------------------------------+
-|                                       MEDALLION DATA TIERS (SCHEMAS)                                  |
-|                                                                                                       |
-|  1. BRONZE (bronze.*)       --> Raw ingestion from OLTP via Spark JDBC. 1:1 schema, append-only,     |
-|                                 watermarked, zero transformations.                                    |
-|                                                                                                       |
-|  2. SILVER (staging.*,      --> Cleaned & conformist views/tables. Data type casting, ISO timestamp   |
-|     intermediate.*)             enrichment, surrogate key hashing, and quarantine isolation of        |
-|                                 operational anomalies.                                                |
-|                                                                                                       |
-|  3. GOLD (marts.*)          --> Kimball Dimensional Modeling. 7 Dimensions, 4 Facts, SCD Type 2       |
-|                                 snapshots, enforce strict contracts, and Power BI exposures.          |
-|                                                                                                       |
-|  4. OBSERVABILITY           --> Metadata-driven Data Quality engine, table profiling metrics,         |
-|     (observability.*)           and execution run histories.                                          |
-+-------------------------------------------------------------------------------------------------------+
-```
+| Environment (Catalog) | Access & Governance | Primary Purpose |
+| :--- | :--- | :--- |
+| **`freight_dev`** | Local Engineers (CLI `uv run dbt build`) | Disposable sandbox for rapid feature development & testing. |
+| **`freight_ci`** | GitHub Actions (Pre-merge ephemeral) | Automated validation on PRs; prevents cross-PR data collisions. |
+| **`freight_prod`** | Airflow Scheduler (`0 6 * * *`) only | Immutable single source of truth; exclusive source for BI reporting. |
+
+### Medallion Data Tiers (Schemas)
+* **Bronze (`bronze.*`):** Raw 1:1 ingestion from OLTP via Spark JDBC. Append-only, watermarked, zero transformation.
+* **Silver (`staging.*`, `intermediate.*`):** Type casting, standardized snake_case naming, surrogate keys, and quarantined defect isolation.
+* **Gold (`marts.*`):** Kimball Star Schema with 7 Dimensions and 4 Facts, SCD Type 2 snapshots, and enforced model contracts.
+* **Observability (`observability.*`):** Metadata-driven Data Quality engine, profiling drift tracking, and test execution history.
 
 ---
 
@@ -56,62 +40,41 @@ Databricks Unity Catalog provides a 3-level namespace: `<catalog>.<schema>.<tabl
 
 ```mermaid
 flowchart LR
-    classDef source fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#0f172a;
-    classDef bronze fill:#ea580c,stroke:#9a3412,stroke-width:2px,color:#ffffff;
-    classDef silver fill:#475569,stroke:#1e293b,stroke-width:2px,color:#ffffff;
-    classDef gold fill:#ca8a04,stroke:#854d0e,stroke-width:2px,color:#ffffff;
-    classDef dq fill:#db2777,stroke:#9d174d,stroke-width:2px,color:#ffffff;
-    classDef af fill:#0284c7,stroke:#0369a1,stroke-width:2px,color:#ffffff;
-    classDef bi fill:#7c3aed,stroke:#5b21b6,stroke-width:2px,color:#ffffff;
-
-    subgraph Source["Source Systems (OLTP)"]
-        GhostDB[("Ghost PostgreSQL<br/>14 Operational Tables")]:::source
+    subgraph Source["Source System (OLTP)"]
+        GhostDB[("PostgreSQL Source<br/>14 Relational Tables")]
     end
 
-    subgraph Databricks["Databricks Lakehouse (Compute & Storage)"]
-        subgraph BronzeTier["1. Bronze Tier (Raw Ingestion)"]
-            SparkJob["Databricks Job<br/>PySpark JDBC Ingest"]:::bronze
-            DeltaBronze[("Delta Bronze Tables<br/>Raw + _ingested_at")]:::bronze
-        end
-
-        subgraph SilverTier["2. Silver Tier (Conformance & Quarantine)"]
-            Staging["Staging Views<br/>stg_freight_*"]:::silver
-            Intermediate["Intermediate Models<br/>Cleaned & Enriched"]:::silver
-            Quarantine[("Quarantine Storage<br/>qtn_* Anomaly Tables")]:::silver
-        end
-
-        subgraph GoldTier["3. Gold Tier (Star Schema Marts)"]
-            Dims[("7 Dimension Tables<br/>dim_customer, driver...")]:::gold
-            Facts[("4 Fact Tables<br/>fct_load, delivery_event...")]:::gold
-            SCD2[("SCD Type 2 Snapshots<br/>snap_drivers, trucks")]:::gold
-        end
-
-        subgraph ObservabilityTier["4. Governance & Observability"]
-            DQEngine["DQ Rules Engine<br/>Seed + Jinja Macro"]:::dq
-            DQResults[("dq_rule_results<br/>Pass/Fail per Invocation")]:::dq
-            SeverityGate{"DQ Severity Gate<br/>on-run-end hook"}:::dq
-        end
+    subgraph BronzeTier["1. Bronze Tier (Raw)"]
+        SparkJob["Databricks Job<br/>PySpark JDBC Ingest"]
+        DeltaBronze[("Delta Bronze Tables<br/>Raw + _ingested_at")]
     end
 
-    subgraph Orchestration["Orchestration (Airflow + Cosmos)"]
-        AF_Ingest["Task: ingest_bronze"]:::af
-        AF_Cosmos["DbtTaskGroup: dbt_freight<br/>Task-level Granularity"]:::af
+    subgraph SilverTier["2. Silver Tier (Conformance)"]
+        Staging["Staging Views<br/>stg_freight_*"]
+        Intermediate["Intermediate Models<br/>Cleaned & Enriched"]
+        Quarantine[("Quarantine Storage<br/>qtn_* Anomaly Tables")]
     end
 
-    subgraph Consumption["Serving & Business Intelligence"]
-        PowerBI["Power BI Executive Dashboard<br/>SLA & Route Profitability"]:::bi
+    subgraph GoldTier["3. Gold Tier (Star Schema Marts)"]
+        Dims[("7 Dimension Tables<br/>dim_customer, driver...")]
+        Facts[("4 Fact Tables<br/>fct_load, delivery_event...")]
+        SCD2[("SCD Type 2 Snapshots<br/>snap_drivers, trucks")]
     end
 
+    subgraph ObservabilityTier["4. Governance & DQ"]
+        DQEngine["DQ Rules Engine<br/>Seed + Jinja Macro"]
+        DQResults[("dq_rule_results<br/>Pass/Fail Stats")]
+        SeverityGate{"DQ Severity Gate<br/>on-run-end hook"}
+    end
 
-    %% Tô màu NỀN riêng biệt cho từng khung Subgraph
-    style Databricks fill:#ffffff,stroke:#94a3b8,stroke-width:2px
-    style BronzeTier fill:#ffedd5,stroke:#ea580c,stroke-width:2px
-    style SilverTier fill:#f1f5f9,stroke:#475569,stroke-width:2px
-    style GoldTier fill:#fef9c3,stroke:#ca8a04,stroke-width:2px
-    style ObservabilityTier fill:#fdf2f8,stroke:#db2777,stroke-width:2px
-    style Source fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px
-    style Orchestration fill:#f0f9ff,stroke:#0284c7,stroke-width:1.5px
-    style Consumption fill:#faf5ff,stroke:#7c3aed,stroke-width:1.5px
+    subgraph Orchestration["Orchestration"]
+        AF_Ingest["Airflow: ingest_bronze"]
+        AF_Cosmos["Cosmos DbtTaskGroup<br/>Task-level Granularity"]
+    end
+
+    subgraph Consumption["Serving & Analytics"]
+        PowerBI["Power BI Dashboard<br/>SLA & Profitability"]
+    end
 
     GhostDB -->|JDBC Extract| SparkJob
     SparkJob --> DeltaBronze
@@ -127,7 +90,7 @@ flowchart LR
     AF_Ingest -.->|Triggers| SparkJob
     AF_Cosmos -.->|Orchestrates| Staging & Intermediate & Dims & Facts
     Facts --> PowerBI
-        Dims --> PowerBI
+    Dims --> PowerBI
 ```
 
 ### Medallion Layer Specifications
