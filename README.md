@@ -38,17 +38,6 @@ Databricks Unity Catalog provides a 3-level namespace: `<catalog>.<schema>.<tabl
 
 ## 3. Detailed Data Pipeline Flow: From Ingestion to Consumption
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/img/pipeline-architecture-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="docs/img/pipeline-architecture-light.svg">
-    <img alt="Freight Lakehouse Pipeline Architecture" src="docs/img/pipeline-architecture-dark.svg" width="100%">
-  </picture>
-</p>
-
-<details>
-<summary><b>🔍 View Interactive Mermaid Diagram Source</b></summary>
-
 ```mermaid
 %%{init: {
   'theme': 'base',
@@ -66,34 +55,34 @@ Databricks Unity Catalog provides a 3-level namespace: `<catalog>.<schema>.<tabl
 flowchart LR
     %% Subgraphs Definition
     subgraph Source ["📦 Source System"]
-        GhostDB[("PostgreSQL OLTP<br/><i>14 Relational Tables</i>")]
+        GhostDB[("PostgreSQL OLTP<br/><b>14 Relational Tables</b>")]
     end
 
     subgraph BronzeTier ["🥉 Bronze Tier (Raw Delta)"]
-        SparkJob["⚡ PySpark Ingestion<br/><i>JDBC High-Watermark</i>"]
-        DeltaBronze[("Delta Bronze Tables<br/><i>Raw + _ingested_at</i>")]
+        SparkJob["⚡ PySpark Ingestion<br/><b>JDBC High-Watermark</b>"]
+        DeltaBronze[("Delta Bronze Tables<br/><b>Raw + _ingested_at</b>")]
     end
 
     subgraph SilverTier ["🥈 Silver Tier (Cleanse & Quarantine)"]
-        Staging["Staging Views<br/><code>stg_freight_*</code>"]
-        Intermediate["Intermediate Logic<br/><i>Cleaned & Enriched</i>"]
-        Quarantine[("⚠️ Quarantine Storage<br/><code>qtn_*</code> <i>Anomalies</i>")]
+        Staging["Staging Views<br/><b>stg_freight_*</b>"]
+        Intermediate["Intermediate Logic<br/><b>Cleaned & Enriched</b>"]
+        Quarantine[("⚠️ Quarantine Storage<br/><b>qtn_* Anomalies</b>")]
     end
 
     subgraph GoldTier ["🥇 Gold Tier (Star Schema Marts)"]
-        Dims[("7 Conformed Dims<br/><code>dim_customer, driver...</code>")]
-        Facts[("4 Fact Tables<br/><code>fct_load, delivery...</code>")]
-        SCD2[("SCD Type 2 Snapshots<br/><code>snap_drivers, trucks</code>")]
+        Dims[("7 Conformed Dims<br/><b>dim_customer, driver...</b>")]
+        Facts[("4 Fact Tables<br/><b>fct_load, delivery...</b>")]
+        SCD2[("SCD Type 2 Snapshots<br/><b>snap_drivers, trucks</b>")]
     end
 
     subgraph ObsTier ["🛡️ Data Observability & Governance"]
-        DQEngine["Jinja DQ Engine<br/><code>seeds/dq_rules.csv</code>"]
-        DQResults[("DQ Audit Logs<br/><code>dq_rule_results</code>")]
-        SeverityGate{"🚨 Severity Gate<br/><i>on-run-end hook</i>"}
+        DQEngine["Jinja DQ Engine<br/><b>seeds/dq_rules.csv</b>"]
+        DQResults[("DQ Audit Logs<br/><b>dq_rule_results</b>")]
+        SeverityGate{"🚨 Severity Gate<br/><b>on-run-end hook</b>"}
     end
 
     subgraph Serving ["📊 BI Consumption"]
-        PowerBI["Power BI Dashboard<br/><i>DirectQuery & SLA KPIs</i>"]
+        PowerBI["Power BI Dashboard<br/><b>DirectQuery & SLA KPIs</b>"]
     end
 
     %% Flow Connections
@@ -101,7 +90,7 @@ flowchart LR
     SparkJob --> DeltaBronze
     DeltaBronze --> Staging
     Staging --> Intermediate
-    Staging -.->|Quarantine Row-Level Defects| Quarantine
+    Staging -.->|Quarantine Row Defects| Quarantine
 
     Intermediate --> Dims
     Intermediate --> Facts
@@ -132,7 +121,6 @@ flowchart LR
     class DQEngine,DQResults,SeverityGate obsStyle;
     class PowerBI biStyle;
 ```
-</details>
 
 ### Medallion Layer Specifications
 
