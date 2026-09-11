@@ -56,65 +56,78 @@ Databricks Unity Catalog provides a 3-level namespace: `<catalog>.<schema>.<tabl
 
 ```mermaid
 flowchart LR
+    classDef source fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#0f172a;
+    classDef bronze fill:#ea580c,stroke:#9a3412,stroke-width:2px,color:#ffffff;
+    classDef silver fill:#475569,stroke:#1e293b,stroke-width:2px,color:#ffffff;
+    classDef gold fill:#ca8a04,stroke:#854d0e,stroke-width:2px,color:#ffffff;
+    classDef dq fill:#db2777,stroke:#9d174d,stroke-width:2px,color:#ffffff;
+    classDef af fill:#0284c7,stroke:#0369a1,stroke-width:2px,color:#ffffff;
+    classDef bi fill:#7c3aed,stroke:#5b21b6,stroke-width:2px,color:#ffffff;
+
     subgraph Source["Source Systems (OLTP)"]
-        GhostDB[("Ghost PostgreSQL\n14 Operational Tables\n(Loads, Trips, Drivers, Trucks...)")]
+        GhostDB[("Ghost PostgreSQL<br/>14 Operational Tables")]:::source
     end
 
     subgraph Databricks["Databricks Lakehouse (Compute & Storage)"]
         subgraph BronzeTier["1. Bronze Tier (Raw Ingestion)"]
-            SparkJob["Databricks Job\n(PySpark JDBC + Watermarking)"]
-            DeltaBronze[("Delta Lake Tables\n`bronze.*`\n(Raw + _ingested_at)")]
+            SparkJob["Databricks Job<br/>PySpark JDBC Ingest"]:::bronze
+            DeltaBronze[("Delta Bronze Tables<br/>Raw + _ingested_at")]:::bronze
         end
 
-        subgraph SilverTier["2. Silver Tier (Validation & Cleansing)"]
-            Staging["Staging Views\n`staging.stg_*`\n(Cast types, Snake_case)"]
-            Intermediate["Intermediate Models\n`int_delivery_events_cleaned`\n`int_loads_enriched`"]
-            Quarantine[("Quarantine Storage\n`qtn_time_anomaly`\n`qtn_orphan_fk`")]
+        subgraph SilverTier["2. Silver Tier (Conformance & Quarantine)"]
+            Staging["Staging Views<br/>stg_freight_*"]:::silver
+            Intermediate["Intermediate Models<br/>Cleaned & Enriched"]:::silver
+            Quarantine[("Quarantine Storage<br/>qtn_* Anomaly Tables")]:::silver
         end
 
         subgraph GoldTier["3. Gold Tier (Star Schema Marts)"]
-            Dims[("7 Dimension Tables\n`dim_customer`, `dim_driver`,\n`dim_truck`, `dim_date`...")]
-            Facts[("4 Fact Tables\n`fct_load`, `fct_trip`,\n`fct_delivery_event`,\n`fct_shipment_lifecycle`")]
-            SCD2[("SCD Type 2 Snapshots\n`snap_drivers`,\n`snap_trucks`")]
+            Dims[("7 Dimension Tables<br/>dim_customer, driver...")]:::gold
+            Facts[("4 Fact Tables<br/>fct_load, delivery_event...")]:::gold
+            SCD2[("SCD Type 2 Snapshots<br/>snap_drivers, trucks")]:::gold
         end
 
         subgraph ObservabilityTier["4. Governance & Observability"]
-            DQEngine["DQ Rules Engine\n(Seed + Jinja SQL Builder)"]
-            DQResults[("`dq_rule_results`\nPass/Fail per invocation")]
-            SeverityGate{"DQ Severity Gate\non-run-end hook"}
+            DQEngine["DQ Rules Engine<br/>Seed + Jinja Macro"]:::dq
+            DQResults[("dq_rule_results<br/>Pass/Fail per Invocation")]:::dq
+            SeverityGate{"DQ Severity Gate<br/>on-run-end hook"}:::dq
         end
     end
 
     subgraph Orchestration["Orchestration (Airflow + Cosmos)"]
-        AF_Ingest["Task: ingest_bronze"]
-        AF_Cosmos["DbtTaskGroup: dbt_freight\n(Task-level Granularity)"]
+        AF_Ingest["Task: ingest_bronze"]:::af
+        AF_Cosmos["DbtTaskGroup: dbt_freight<br/>Task-level Granularity"]:::af
     end
 
     subgraph Consumption["Serving & Business Intelligence"]
-        PowerBI["Power BI Executive Dashboard\n(SLA, Late Delivery Root Cause)"]
+        PowerBI["Power BI Executive Dashboard<br/>SLA & Route Profitability"]:::bi
     end
 
-    %% Dependencies
-    GhostDB -->|JDBC extract| SparkJob
-    SparkJob --> DeltaBronze
 
+    %% Tô màu NỀN riêng biệt cho từng khung Subgraph
+    style Databricks fill:#ffffff,stroke:#94a3b8,stroke-width:2px
+    style BronzeTier fill:#ffedd5,stroke:#ea580c,stroke-width:2px
+    style SilverTier fill:#f1f5f9,stroke:#475569,stroke-width:2px
+    style GoldTier fill:#fef9c3,stroke:#ca8a04,stroke-width:2px
+    style ObservabilityTier fill:#fdf2f8,stroke:#db2777,stroke-width:2px
+    style Source fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px
+    style Orchestration fill:#f0f9ff,stroke:#0284c7,stroke-width:1.5px
+    style Consumption fill:#faf5ff,stroke:#7c3aed,stroke-width:1.5px
+
+    GhostDB -->|JDBC Extract| SparkJob
+    SparkJob --> DeltaBronze
     DeltaBronze --> Staging
     Staging --> Intermediate
-    Staging -.->|Isolate defect rows| Quarantine
-
+    Staging -.->|Isolate Defect Rows| Quarantine
     Intermediate --> Dims
     Intermediate --> Facts
     Intermediate --> SCD2
-
     Staging --> DQEngine
     DQEngine --> DQResults
     DQResults --> SeverityGate
-
     AF_Ingest -.->|Triggers| SparkJob
     AF_Cosmos -.->|Orchestrates| Staging & Intermediate & Dims & Facts
-
     Facts --> PowerBI
-    Dims --> PowerBI
+        Dims --> PowerBI
 ```
 
 ### Medallion Layer Specifications
@@ -151,31 +164,9 @@ Instead of treating dbt as a black-box `BashOperator("dbt build")`, this platfor
 - **Isolated Virtual Environments:** Resolves dependency conflicts between Airflow (2.10) and dbt (1.12) by containerizing dbt inside a dedicated virtual environment (`/home/airflow/dbt_venv`).
 - **Idempotency Verification:** Includes a dedicated DAG (`freight_backfill`) targeting microbatch models to prove pipeline determinism across re-runs.
 
+### Pipeline Execution Showcase
+
+![Airflow Pipeline Execution](docs/images/airflow_graph_view.png)
+*Figure: Production execution state in Apache Airflow (Astronomer Cosmos). Left: 100% Green Grid run status across Ingestion, Staging, and Marts. Right: Dynamic DAG dependency graph.*
+
 ---
-
-## 5. Quickstart & Local Execution
-
-### Prerequisites
-- Python 3.12 (`uv` package manager)
-- Docker & Docker Compose
-- Databricks Workspace account with SQL Warehouse access
-
-```bash
-# 1. Clone & install dependencies
-git clone https://github.com/toandatawork/freight-analytics-warehouse.git
-cd freight-analytics-warehouse
-uv sync
-
-# 2. Environment Configuration
-cp .env.example .env
-# Populate DBX_HOST, DBX_HTTP_PATH, DBX_TOKEN, DBX_JOB_ID
-
-# 3. Local dbt Development (targets freight_dev)
-cd dbt
-uv run dbt deps
-uv run dbt build --target dev
-
-# 4. Start Orchestration Cluster (Airflow UI at http://localhost:8080)
-cd ../airflow
-docker compose up -d
-```
