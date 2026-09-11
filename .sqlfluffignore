@@ -1,0 +1,8 @@
+# Target directory: Excludes auto-generated dbt compilation artifacts and manifests.
+dbt/target/
+
+# dbt Packages: Excludes third-party dbt packages (e.g., dbt_utils, dbt_expectations).
+dbt/dbt_packages/
+
+# Logs directory: Excludes execution log files.
+dbt/logs/

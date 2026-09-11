@@ -1,0 +1,4 @@
+astronomer-cosmos
+databricks-sdk
+python-dotenv
+requests

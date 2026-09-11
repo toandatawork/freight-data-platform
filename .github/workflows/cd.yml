@@ -1,4 +1,4 @@
-name: Deploy dbt docs
+name: CD - Deploy Documentation & Artifacts
 
 on:
   push:

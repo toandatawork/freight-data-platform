@@ -22,3 +22,9 @@ airflow/logs/
 
 # macOS
 .DS_Store
+
+# Internal setup guides
+POWERBI_SETUP_GUIDE.md
+
+# docs
+docs/INTERVIEW_CHEATSHEET.md

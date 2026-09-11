@@ -48,7 +48,7 @@ models:
       +group: core
       +access: public
       +grants:
-        select: ["bi_reader"]
+        select: ["account users"]
 
 seeds:
   freight:

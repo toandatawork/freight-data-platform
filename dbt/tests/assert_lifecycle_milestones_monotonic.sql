@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('fct_shipment_lifecycle') }}
 select s.load_id
 from {{ ref("fct_shipment_lifecycle") }} s
 left join {{ ref("qtn_time_anomaly") }} ta on s.load_id = ta.load_id

@@ -10,9 +10,9 @@ select
     l.revenue,
     l.fuel_surcharge,
     l.accessorial_charges,
-    l.revenue + l.fuel_surcharge + l.accessorial_charges as gross_revenue,
     l.load_status,
     l.booking_type,
+    l.revenue + l.fuel_surcharge + l.accessorial_charges as gross_revenue,
     ta.load_id is not null as has_time_anomaly
-from {{ ref("stg_freight__loads") }} l
-left join {{ ref("qtn_time_anomaly") }} ta on l.load_id = ta.load_id
+from {{ ref("stg_freight__loads") }} as l
+left join {{ ref("qtn_time_anomaly") }} as ta on l.load_id = ta.load_id

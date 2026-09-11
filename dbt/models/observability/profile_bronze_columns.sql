@@ -14,6 +14,6 @@
 ] %}
 
 {% for t in bronze_tables %}
-{{ profile_relation('bronze', t) }}
-{% if not loop.last %}union all{% endif %}
+    {{ profile_relation('bronze', t) }}
+    {% if not loop.last %}union all{% endif %}
 {% endfor %}

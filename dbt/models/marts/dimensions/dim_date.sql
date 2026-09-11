@@ -1,7 +1,7 @@
 {{ config(materialized="table", tags=["marts"]) }}
 
 with
-    spine as (
+spine as (
         {{
             dbt_utils.date_spine(
                 datepart="day",
@@ -9,7 +9,7 @@ with
                 end_date="cast('2025-01-01' as date)",
             )
         }}
-    )
+)
 
 select
     {{ dbt_utils.generate_surrogate_key(["date_day"]) }} as date_key,

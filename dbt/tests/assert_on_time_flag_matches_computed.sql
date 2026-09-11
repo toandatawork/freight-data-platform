@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('qtn_flag_mismatch') }}
 select c.event_id
 from {{ ref("int_delivery_events_cleaned") }} c
 left join {{ ref("qtn_flag_mismatch") }} q on c.event_id = q.event_id

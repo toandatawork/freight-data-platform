@@ -1,0 +1,16 @@
+[sqlfluff]
+# Dialect: Specifies the target SQL syntax engine.
+dialect = databricks
+
+# Templater: Tells SQLFluff how to handle code templates before linting.
+templater = dbt
+
+# Max line length: Enforces a soft line-length limit for code readability.
+max_line_length = 120
+
+[sqlfluff:templater:dbt]
+# Project directory: Relative path pointing to the dbt project root.
+project_dir = ./dbt
+
+# Profiles directory: Path pointing to profiles.yml.
+profiles_dir = ./dbt

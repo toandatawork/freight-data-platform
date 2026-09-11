@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('fct_load') }}
 select l.load_id
 from {{ ref("fct_load") }} l
 left join {{ ref("stg_freight__trips") }} t on l.load_id = t.load_id
