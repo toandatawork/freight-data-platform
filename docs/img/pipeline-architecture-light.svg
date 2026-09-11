@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <linearGradient id="lcard-source" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f0f9ff"/>
+    </linearGradient>
+    <linearGradient id="lcard-bronze" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#fefce8"/>
+    </linearGradient>
+    <linearGradient id="lcard-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f8fafc"/>
+    </linearGradient>
+    <linearGradient id="lcard-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#fef9c3"/>
+    </linearGradient>
+    <linearGradient id="lcard-obs" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f0fdfa"/>
+    </linearGradient>
+    <linearGradient id="lcard-bi" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#faf5ff"/>
+    </linearGradient>
+    <filter id="lshadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#64748b" flood-opacity="0.15"/>
+    </filter>
+    <marker id="arrow-light" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#0284c7"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="480" rx="16" fill="url(#bg-light)" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- Pipeline Header -->
+  <text x="50" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#0f172a" letter-spacing="0.5">FREIGHT LAKEHOUSE PIPELINE ARCHITECTURE</text>
+  <text x="50" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#64748b">Medallion Design Pattern • High-Watermark PySpark • Conformed Star Schema • Metadata DQ Gate</text>
+
+  <!-- 1. Source System -->
+  <g transform="translate(40, 105)" filter="url(#lshadow)">
+    <rect width="160" height="330" rx="12" fill="url(#lcard-source)" stroke="#0284c7" stroke-width="1.5"/>
+    <rect x="0" y="0" width="160" height="38" rx="12" fill="#e0f2fe"/>
+    <text x="80" y="24" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#0369a1">📦 OLTP SOURCE</text>
+    
+    <rect x="15" y="60" width="130" height="75" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="80" y="90" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#0f172a">PostgreSQL OLTP</text>
+    <text x="80" y="110" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#64748b">14 Relational Tables</text>
+
+    <rect x="15" y="160" width="130" height="135" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="80" y="185" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="600" fill="#334155">Core Entities</text>
+    <text x="25" y="212" font-family="monospace" font-size="10" fill="#475569">• loads (85k+)</text>
+    <text x="25" y="232" font-family="monospace" font-size="10" fill="#475569">• delivery_events</text>
+    <text x="25" y="252" font-family="monospace" font-size="10" fill="#475569">• drivers &amp; trucks</text>
+    <text x="25" y="272" font-family="monospace" font-size="10" fill="#475569">• fuel_purchases</text>
+  </g>
+
+  <!-- Connection: Source to Bronze -->
+  <path d="M 200 200 L 235 200" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow-light)"/>
+
+  <!-- 2. Bronze Tier -->
+  <g transform="translate(240, 105)" filter="url(#lshadow)">
+    <rect width="160" height="330" rx="12" fill="url(#lcard-bronze)" stroke="#d97706" stroke-width="1.5"/>
+    <rect x="0" y="0" width="160" height="38" rx="12" fill="#fef3c7"/>
+    <text x="80" y="24" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#b45309">🥉 BRONZE (RAW)</text>
+    
+    <rect x="15" y="60" width="130" height="85" rx="8" fill="#ffffff" stroke="#fde68a"/>
+    <text x="80" y="90" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#92400e">⚡ PySpark Ingest</text>
+    <text x="80" y="110" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#b45309">High-Watermark JDBC</text>
+    <text x="80" y="128" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#d97706">Append-Only</text>
+
+    <rect x="15" y="170" width="130" height="125" rx="8" fill="#ffffff" stroke="#fde68a"/>
+    <text x="80" y="200" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#92400e">Delta Tables</text>
+    <text x="80" y="222" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#b45309">bronze.*</text>
+    <text x="25" y="252" font-family="sans-serif" font-size="10" fill="#d97706">+ _ingested_at</text>
+    <text x="25" y="272" font-family="sans-serif" font-size="10" fill="#d97706">+ _source_file</text>
+  </g>
+
+  <!-- Connection: Bronze to Silver -->
+  <path d="M 400 230 L 435 230" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow-light)"/>
+
+  <!-- 3. Silver Tier -->
+  <g transform="translate(440, 105)" filter="url(#lshadow)">
+    <rect width="180" height="330" rx="12" fill="url(#lcard-silver)" stroke="#64748b" stroke-width="1.5"/>
+    <rect x="0" y="0" width="180" height="38" rx="12" fill="#e2e8f0"/>
+    <text x="90" y="24" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#334155">🥈 SILVER (CLEANSE)</text>
+    
+    <rect x="15" y="55" width="150" height="60" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="90" y="80" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="600" fill="#0f172a">Staging Views</text>
+    <text x="90" y="98" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">stg_freight_*</text>
+
+    <rect x="15" y="130" width="150" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="90" y="155" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="600" fill="#0f172a">Intermediate Models</text>
+    <text x="90" y="173" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#64748b">Duration &amp; Delay Logic</text>
+    <text x="90" y="188" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#64748b">Surrogate Keys</text>
+
+    <!-- Quarantine box -->
+    <rect x="15" y="220" width="150" height="75" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <text x="90" y="245" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="#991b1b">⚠️ Quarantine Layer</text>
+    <text x="90" y="265" text-anchor="middle" font-family="monospace" font-size="10" fill="#b91c1c">qtn_* anomaly tables</text>
+    <text x="90" y="280" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#dc2626">Isolates Invalid Rows</text>
+  </g>
+
+  <!-- Connection: Silver to Gold -->
+  <path d="M 620 165 L 665 165" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow-light)"/>
+
+  <!-- 4. Gold Tier -->
+  <g transform="translate(670, 105)" filter="url(#lshadow)">
+    <rect width="180" height="330" rx="12" fill="url(#lcard-gold)" stroke="#ca8a04" stroke-width="2"/>
+    <rect x="0" y="0" width="180" height="38" rx="12" fill="#fef08a"/>
+    <text x="90" y="24" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#854d0e">🥇 GOLD (STAR SCHEMA)</text>
+    
+    <rect x="15" y="55" width="150" height="65" rx="8" fill="#ffffff" stroke="#fde047"/>
+    <text x="90" y="80" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="600" fill="#713f12">7 Conformed Dims</text>
+    <text x="90" y="100" text-anchor="middle" font-family="monospace" font-size="10" fill="#854d0e">dim_customer, driver...</text>
+
+    <rect x="15" y="135" width="150" height="85" rx="8" fill="#ffffff" stroke="#fde047"/>
+    <text x="90" y="160" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="600" fill="#713f12">4 Fact Tables</text>
+    <text x="90" y="180" text-anchor="middle" font-family="monospace" font-size="10" fill="#854d0e">fct_load (Contracted)</text>
+    <text x="90" y="198" text-anchor="middle" font-family="monospace" font-size="9" fill="#a16207">fct_delivery_event (Micro)</text>
+
+    <rect x="15" y="235" width="150" height="60" rx="8" fill="#ffffff" stroke="#fde047"/>
+    <text x="90" y="258" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="600" fill="#713f12">SCD Type 2 Snapshots</text>
+    <text x="90" y="278" text-anchor="middle" font-family="monospace" font-size="10" fill="#854d0e">snap_drivers, trucks</text>
+  </g>
+
+  <!-- Connection: Gold to Serving -->
+  <path d="M 850 175 L 885 175" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow-light)"/>
+
+  <!-- 5. Serving BI -->
+  <g transform="translate(890, 105)" filter="url(#lshadow)">
+    <rect width="140" height="150" rx="12" fill="url(#lcard-bi)" stroke="#9333ea" stroke-width="1.5"/>
+    <rect x="0" y="0" width="140" height="36" rx="12" fill="#f3e8ff"/>
+    <text x="70" y="23" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="700" fill="#6b21a8">📊 BI SERVING</text>
+    
+    <text x="70" y="70" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#3b0764">Power BI</text>
+    <text x="70" y="92" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#581c87">Freight Operations</text>
+    <text x="70" y="110" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7e22ce">SLA &amp; Profitability</text>
+    <text x="70" y="128" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#9333ea">DirectQuery / Import</text>
+  </g>
+
+  <!-- 6. Observability Tier -->
+  <g transform="translate(890, 275)" filter="url(#lshadow)">
+    <rect width="270" height="160" rx="12" fill="url(#lcard-obs)" stroke="#0d9488" stroke-width="1.5"/>
+    <rect x="0" y="0" width="270" height="36" rx="12" fill="#ccfbf1"/>
+    <text x="135" y="23" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="700" fill="#115e59">🛡️ DATA OBSERVABILITY &amp; DQ</text>
+    
+    <text x="20" y="65" font-family="sans-serif" font-size="11" font-weight="600" fill="#134e4a">• Jinja DQ Engine (dq_rules.csv)</text>
+    <text x="20" y="85" font-family="sans-serif" font-size="10" fill="#0f766e">  Executes automated multi-table rules</text>
+
+    <text x="20" y="115" font-family="sans-serif" font-size="11" font-weight="600" fill="#134e4a">• Severity Gate (on-run-end hook)</text>
+    <text x="20" y="135" font-family="sans-serif" font-size="10" fill="#b91c1c">  🚨 Aborts run on 'error' thresholds</text>
+  </g>
+
+  <!-- Connection: Silver to Observability -->
+  <path d="M 530 435 C 530 460, 800 460, 890 380" fill="none" stroke="#0d9488" stroke-dasharray="4 4" stroke-width="1.5" marker-end="url(#arrow-light)"/>
+
+</svg>

@@ -38,60 +38,101 @@ Databricks Unity Catalog provides a 3-level namespace: `<catalog>.<schema>.<tabl
 
 ## 3. Detailed Data Pipeline Flow: From Ingestion to Consumption
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/pipeline-architecture-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/img/pipeline-architecture-light.svg">
+    <img alt="Freight Lakehouse Pipeline Architecture" src="docs/img/pipeline-architecture-dark.svg" width="100%">
+  </picture>
+</p>
+
+<details>
+<summary><b>🔍 View Interactive Mermaid Diagram Source</b></summary>
+
 ```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#1e293b',
+    'primaryTextColor': '#f8fafc',
+    'primaryBorderColor': '#38bdf8',
+    'lineColor': '#94a3b8',
+    'secondaryColor': '#0f172a',
+    'tertiaryColor': '#1e293b',
+    'fontFamily': 'Inter, system-ui, -apple-system, sans-serif'
+  }
+}}%%
+
 flowchart LR
-    subgraph Source["Source System (OLTP)"]
-        GhostDB[("PostgreSQL Source<br/>14 Relational Tables")]
+    %% Subgraphs Definition
+    subgraph Source ["📦 Source System"]
+        GhostDB[("PostgreSQL OLTP<br/><i>14 Relational Tables</i>")]
     end
 
-    subgraph BronzeTier["1. Bronze Tier (Raw)"]
-        SparkJob["Databricks Job<br/>PySpark JDBC Ingest"]
-        DeltaBronze[("Delta Bronze Tables<br/>Raw + _ingested_at")]
+    subgraph BronzeTier ["🥉 Bronze Tier (Raw Delta)"]
+        SparkJob["⚡ PySpark Ingestion<br/><i>JDBC High-Watermark</i>"]
+        DeltaBronze[("Delta Bronze Tables<br/><i>Raw + _ingested_at</i>")]
     end
 
-    subgraph SilverTier["2. Silver Tier (Conformance)"]
-        Staging["Staging Views<br/>stg_freight_*"]
-        Intermediate["Intermediate Models<br/>Cleaned & Enriched"]
-        Quarantine[("Quarantine Storage<br/>qtn_* Anomaly Tables")]
+    subgraph SilverTier ["🥈 Silver Tier (Cleanse & Quarantine)"]
+        Staging["Staging Views<br/><code>stg_freight_*</code>"]
+        Intermediate["Intermediate Logic<br/><i>Cleaned & Enriched</i>"]
+        Quarantine[("⚠️ Quarantine Storage<br/><code>qtn_*</code> <i>Anomalies</i>")]
     end
 
-    subgraph GoldTier["3. Gold Tier (Star Schema Marts)"]
-        Dims[("7 Dimension Tables<br/>dim_customer, driver...")]
-        Facts[("4 Fact Tables<br/>fct_load, delivery_event...")]
-        SCD2[("SCD Type 2 Snapshots<br/>snap_drivers, trucks")]
+    subgraph GoldTier ["🥇 Gold Tier (Star Schema Marts)"]
+        Dims[("7 Conformed Dims<br/><code>dim_customer, driver...</code>")]
+        Facts[("4 Fact Tables<br/><code>fct_load, delivery...</code>")]
+        SCD2[("SCD Type 2 Snapshots<br/><code>snap_drivers, trucks</code>")]
     end
 
-    subgraph ObservabilityTier["4. Governance & DQ"]
-        DQEngine["DQ Rules Engine<br/>Seed + Jinja Macro"]
-        DQResults[("dq_rule_results<br/>Pass/Fail Stats")]
-        SeverityGate{"DQ Severity Gate<br/>on-run-end hook"}
+    subgraph ObsTier ["🛡️ Data Observability & Governance"]
+        DQEngine["Jinja DQ Engine<br/><code>seeds/dq_rules.csv</code>"]
+        DQResults[("DQ Audit Logs<br/><code>dq_rule_results</code>")]
+        SeverityGate{"🚨 Severity Gate<br/><i>on-run-end hook</i>"}
     end
 
-    subgraph Orchestration["Orchestration"]
-        AF_Ingest["Airflow: ingest_bronze"]
-        AF_Cosmos["Cosmos DbtTaskGroup<br/>Task-level Granularity"]
+    subgraph Serving ["📊 BI Consumption"]
+        PowerBI["Power BI Dashboard<br/><i>DirectQuery & SLA KPIs</i>"]
     end
 
-    subgraph Consumption["Serving & Analytics"]
-        PowerBI["Power BI Dashboard<br/>SLA & Profitability"]
-    end
-
+    %% Flow Connections
     GhostDB -->|JDBC Extract| SparkJob
     SparkJob --> DeltaBronze
     DeltaBronze --> Staging
     Staging --> Intermediate
-    Staging -.->|Isolate Defect Rows| Quarantine
+    Staging -.->|Quarantine Row-Level Defects| Quarantine
+
     Intermediate --> Dims
     Intermediate --> Facts
     Intermediate --> SCD2
+
     Staging --> DQEngine
+    Intermediate --> DQEngine
     DQEngine --> DQResults
     DQResults --> SeverityGate
-    AF_Ingest -.->|Triggers| SparkJob
-    AF_Cosmos -.->|Orchestrates| Staging & Intermediate & Dims & Facts
-    Facts --> PowerBI
+
     Dims --> PowerBI
+    Facts --> PowerBI
+
+    %% Custom Modern Styling
+    classDef sourceStyle fill:#0f172a,stroke:#38bdf8,stroke-width:1.5px,color:#f8fafc;
+    classDef bronzeStyle fill:#2d1b08,stroke:#f59e0b,stroke-width:1.5px,color:#fef3c7;
+    classDef silverStyle fill:#1e293b,stroke:#94a3b8,stroke-width:1.5px,color:#f1f5f9;
+    classDef goldStyle fill:#312e09,stroke:#eab308,stroke-width:2px,color:#fef9c3;
+    classDef obsStyle fill:#142926,stroke:#14b8a6,stroke-width:1.5px,color:#ccfbf1;
+    classDef biStyle fill:#2e1065,stroke:#a855f7,stroke-width:2px,color:#f3e8ff;
+    classDef warnStyle fill:#450a0a,stroke:#ef4444,stroke-width:1.5px,color:#fee2e2;
+
+    class GhostDB sourceStyle;
+    class SparkJob,DeltaBronze bronzeStyle;
+    class Staging,Intermediate silverStyle;
+    class Quarantine warnStyle;
+    class Dims,Facts,SCD2 goldStyle;
+    class DQEngine,DQResults,SeverityGate obsStyle;
+    class PowerBI biStyle;
 ```
+</details>
 
 ### Medallion Layer Specifications
 
